@@ -27,11 +27,11 @@
   <div class="row">
     <div class="large-4 medium-4 columns">
       <h5>Manage your simulators:</h5>
-      <form>
+    
         <div class="row">
           <div class="large-4 columns">
             <label>Frequency</label>
-            <input id="frequency" type="text" placeholder="Message interval (seconds)" />
+            <input class="large-8" id="frequency" type="text" placeholder="Message interval (seconds)" />
           </div>
         </div>
         <div class="row">
@@ -46,7 +46,7 @@
             <textarea id="state" placeholder="Current fleet state"></textarea>
           </div>
         </div>
-      </form>
+    
       <p><a href="#" id="start" class="success button">Start test</a><br/>
         <a href="#" id="stop" class="alert button">Stop  test</a><br/>
         <div class="callout">
@@ -63,19 +63,32 @@
       <h5>Visualization:</h5>
       <div class="row">
         <ul class="users" data-bind="foreach: users.entries">
-				<li data-bind="css:{ active: isActive }, click: $parent.selectUser.bind($parent)">
-					<em>
+          <li data-bind="css:{ active: isActive }, click: $parent.selectUser.bind($parent)">
+            <em>
 						<span data-bind="text:firstname"></span>
 						<span data-bind="text:lastname"></span>
 					</em>
-					<span data-bind="text:role"></span>
-					<div class="delete-button fa fa-remove" data-bind="click: deleteUser"></div>
-				</li>
-			</ul>
+            <span data-bind="text:role"></span>
+            <div class="delete-button fa fa-remove" data-bind="click: deleteUser"></div>
+          </li>
+        </ul>
+        
       </div>
       <h5>Ouput:</h5>
       <!-- Grid Example -->
-
+<div class="row">
+  	<ul class="users" data-bind="foreach: simulations.entries">
+				<li data-bind="css:{ active: isActive }, click: $parent.selectSimulation.bind($parent)">
+					<em>
+						<span data-bind="text:noDevices"></span>
+						<span data-bind="text:noNodes"></span>
+					</em>
+					<span data-bind="text:simulationId"></span>
+					<div class="delete-button fa fa-remove" data-bind="click: deleteSimulation"></div>
+				</li>
+			</ul>
+			<div  data-bind="click: addSimulation"><i class="fa fa-plus"></i>  <span>add simulation</span></div>
+</div>
       <div class="row">
         <div class="large-12 columns">
           <div class="primary callout">
@@ -83,9 +96,6 @@
           </div>
         </div>
       </div>
-
-
-
     </div>
   </div>
 
@@ -98,7 +108,19 @@
 
   <script type="text/javascript">
     // var client = deepstream('ws://vjiotprofiler.westeurope.cloudapp.azure.com:6020').login()
-   // var record = client.record.getRecord('some-name')
+    // var record = client.record.getRecord('some-name')
+
+    $("#start").click(function () {
+      ds.rpc.make('start-test', { frequency: $("#frequency").val(), messageSize: 2000 }, (err, result) => {
+        // result == 20;
+      });
+    })
+
+     $("#stop").click(function () {
+      ds.rpc.make('stop-test', {  }, (err, result) => {
+       
+      });
+    })
   </script>
 </body>
 

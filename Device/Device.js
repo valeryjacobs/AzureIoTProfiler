@@ -21,7 +21,7 @@ dsClient.rpc.provide('start-test', (data, response) => {
   //response.send( data.frequency + data.messageSize );
   response.send('Test with interval ' + data.frequency + ' initiated.');
   clearInterval(refreshIntervalId);
-  
+
   refreshIntervalId = setInterval(function () {
     var windSpeed = 10 + (Math.random() * 4);
     var data = JSON.stringify({ deviceId: 'Device00000001', windSpeed: windSpeed });
@@ -30,7 +30,11 @@ dsClient.rpc.provide('start-test', (data, response) => {
     client.sendEvent(message, printResultFor('send'));
   }, data.frequency * 1000);
 
-  
+
+});
+
+dsClient.rpc.provide('stop-test', (data, response) => {
+  clearInterval(refreshIntervalId);
 });
 
 function printResultFor(op) {

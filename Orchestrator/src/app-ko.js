@@ -3,23 +3,15 @@ koTools = new KoTools(ko);
 
 var record = ds.record.getRecord('some-name')
 
-ds.login({ username: 'orchestration-admin-' + ds.getUid() }, function () {
+ds.login({ username: 'simulator-instance-' + ds.getUid() }, function () {
 	ko.applyBindings(new AppViewModel());
 });
-
-
-$("#start").click(function () {
-	ds.rpc.make('start-test', { frequency: $("#frequency").val(), messageSize: 2000 }, (err, result) => {
-		// result == 20;
-	});
-})
 
 record.subscribe('firstname', function (value) {
 	$("#state").val(value);
 })
 
 $('#state').bind('input propertychange', function () {
-
 	record.set('firstname', $('#state').val())
 	ds.event.emit('device/connect', 'I am connected')
 });
@@ -29,7 +21,16 @@ $('#state').bind('input propertychange', function () {
  */
 AppViewModel = function () {
 	this.users = koTools.getViewList(UserListEntryViewModel, ds.record.getList('users'));
+	this.simulations = koTools.getViewList(SimulationListEntryViewModel, ds.record.getList('simulations'));
 	this.user = new UserViewModel();
+	this.simulation = new SimulationViewModel();
+};
+
+AppViewModel.prototype.addSimulation = function () {
+	var newSimulationId = 'Simulation-' + ds.getUid();
+	var record = ds.record.getRecord(newSimulationId);
+	record.set({simulationId: newSimulationId,noNodes:0,noDevices:0});
+	this.simulations.getList().addEntry(newSimulationId);
 };
 
 AppViewModel.prototype.addUser = function () {
@@ -46,6 +47,12 @@ AppViewModel.prototype.selectUser = function (userAppViewModel) {
 	userAppViewModel.isActive(true);
 };
 
+AppViewModel.prototype.selectSimulation = function (simulationAppViewModel) {
+	this.simulation.record.setName(simulationAppViewModel.record.name);
+	this.users.callOnEntries('isActive', [false]);
+	simulationAppViewModel.isActive(true);
+};
+
 /**
  * Class UserListEntryViewModel
  */
@@ -58,7 +65,26 @@ UserListEntryViewModel = function (userRecordName, viewList) {
 	this.isActive = ko.observable(false);
 };
 
+SimulationListEntryViewModel = function (simulationRecordId,viewList) {
+	this.record = ds.record.getRecord(simulationRecordId);
+	this.viewList = viewList;
+	this.simulationId = koTools.getObservable(this.record, 'simulationId');
+	this.startTimeStamp = koTools.getObservable(this.record, 'startTimeStamp');
+	this.endTimeStamp = koTools.getObservable(this.record, 'endTimeStamp');
+	this.payloadSize = koTools.getObservable(this.record, 'payloadSize');
+	this.payload = koTools.getObservable(this.record, 'payload');
+	this.noNodes = koTools.getObservable(this.record, 'noNodes');
+	this.noDevices = koTools.getObservable(this.record, 'noDevices');
+	this.isActive = ko.observable(false);
+};
+
 UserListEntryViewModel.prototype.deleteUser = function (viewModel, event) {
+	event.stopPropagation();
+	this.viewList.getList().removeEntry(this.record.name);
+	this.record.delete();
+};
+
+SimulationListEntryViewModel.prototype.deleteSimulation = function (viewModel, event) {
 	event.stopPropagation();
 	this.viewList.getList().removeEntry(this.record.name);
 	this.record.delete();
@@ -67,6 +93,18 @@ UserListEntryViewModel.prototype.deleteUser = function (viewModel, event) {
 /**
  * Class UserViewModel
  */
+SimulationViewModel = function () {
+	this.record = ds.record.getAnonymousRecord();
+	this.simulationId = koTools.getObservable(this.record, 'simulationId'); 
+	this.startTimeStamp = koTools.getObservable(this.record, 'startTimeStamp');
+	this.endTimeStamp = koTools.getObservable(this.record, 'endTimeStamp');
+	this.noNodes = koTools.getObservable(this.record, 'noNodes');
+	this.noDevices = koTools.getObservable(this.record, 'noDevices');
+	this.noMessages = koTools.getObservable(this.record, 'noMessages');
+	this.payLoadSize = koTools.getObservable(this.record, 'payLoadSize');
+	this.payLoad = koTools.getObservable(this.record, 'payLoad');
+};
+
 UserViewModel = function () {
 	this.record = ds.record.getAnonymousRecord();
 	this.firstname = koTools.getObservable(this.record, 'firstname');
