@@ -16,6 +16,38 @@ $('#state').bind('input propertychange', function () {
 	ds.event.emit('device/connect', 'I am connected')
 });
 
+function setupChart()
+{
+	$("#morris-area-chart").empty();
+
+	  Morris.Area({
+        element: 'morris-area-chart',
+        data: [{
+            timeStamp: '2012-02-24 15:00:00',
+            noNodes: 6,
+            noDevices: 12000,
+            noMessages: 23465978
+        }, {
+            timeStamp: '2012-02-24 15:00:10',
+            noNodes: 6,
+            noDevices: 12003,
+            noMessages: 23665978
+        },
+        {
+            timeStamp: '2012-02-24 15:00:20',
+            noNodes: 7,
+            noDevices: 15503,
+            noMessages: 25665978
+        }],
+        xkey: 'timeStamp',
+        ykeys: ['noNodes', 'noDevices', 'noMessages'],
+        labels: ['noNodes', 'noDevices', 'noMessages'],
+        pointSize: 2,
+        hideHover: 'auto',
+        resize: true
+    });
+}
+
 /**
  * Class AppViewModel
  */
@@ -29,7 +61,7 @@ AppViewModel = function () {
 AppViewModel.prototype.addSimulation = function () {
 	var newSimulationId = 'Simulation-' + ds.getUid();
 	var record = ds.record.getRecord(newSimulationId);
-	record.set({simulationId: newSimulationId,noNodes:0,noDevices:0});
+	record.set({simulationId: newSimulationId,noNodes:10,noDevices:100000, frequency: 5});
 	this.simulations.getList().addEntry(newSimulationId);
 };
 
@@ -45,12 +77,15 @@ AppViewModel.prototype.selectUser = function (userAppViewModel) {
 	this.user.record.setName(userAppViewModel.record.name);
 	this.users.callOnEntries('isActive', [false]);
 	userAppViewModel.isActive(true);
+
 };
 
 AppViewModel.prototype.selectSimulation = function (simulationAppViewModel) {
 	this.simulation.record.setName(simulationAppViewModel.record.name);
 	this.users.callOnEntries('isActive', [false]);
 	simulationAppViewModel.isActive(true);
+
+	setupChart();
 };
 
 /**
@@ -75,6 +110,7 @@ SimulationListEntryViewModel = function (simulationRecordId,viewList) {
 	this.payload = koTools.getObservable(this.record, 'payload');
 	this.noNodes = koTools.getObservable(this.record, 'noNodes');
 	this.noDevices = koTools.getObservable(this.record, 'noDevices');
+	this.frequency = koTools.getObservable(this.record, 'frequency');
 	this.isActive = ko.observable(false);
 };
 
@@ -103,6 +139,7 @@ SimulationViewModel = function () {
 	this.noMessages = koTools.getObservable(this.record, 'noMessages');
 	this.payLoadSize = koTools.getObservable(this.record, 'payLoadSize');
 	this.payLoad = koTools.getObservable(this.record, 'payLoad');
+	this.frequency = koTools.getObservable(this.record, 'frequency');
 };
 
 UserViewModel = function () {
