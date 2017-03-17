@@ -25,23 +25,23 @@ function setupChart()
         data: [{
             timeStamp: '2012-02-24 15:00:00',
             noNodes: 6,
-            noDevices: 12000,
+            noSimulators: 12000,
             noMessages: 23465978
         }, {
             timeStamp: '2012-02-24 15:00:10',
             noNodes: 6,
-            noDevices: 12003,
+            noSimulators: 12003,
             noMessages: 23665978
         },
         {
             timeStamp: '2012-02-24 15:00:20',
             noNodes: 7,
-            noDevices: 15503,
+            noSimulators: 15503,
             noMessages: 25665978
         }],
         xkey: 'timeStamp',
-        ykeys: ['noNodes', 'noDevices', 'noMessages'],
-        labels: ['noNodes', 'noDevices', 'noMessages'],
+        ykeys: ['noNodes', 'noSimulators', 'noMessages'],
+        labels: ['noNodes', 'noSimulators', 'noMessages'],
         pointSize: 2,
         hideHover: 'auto',
         resize: true
@@ -56,12 +56,13 @@ AppViewModel = function () {
 	this.simulations = koTools.getViewList(SimulationListEntryViewModel, ds.record.getList('simulations'));
 	this.user = new UserViewModel();
 	this.simulation = new SimulationViewModel();
+	this.node = new NodeViewModel();
 };
 
 AppViewModel.prototype.addSimulation = function () {
 	var newSimulationId = 'Simulation-' + ds.getUid();
 	var record = ds.record.getRecord(newSimulationId);
-	record.set({simulationId: newSimulationId,noNodes:10,noDevices:100000, frequency: 5});
+	record.set({simulationId: newSimulationId,noNodes:10,noSimulators:100000, frequency: 5});
 	this.simulations.getList().addEntry(newSimulationId);
 };
 
@@ -109,7 +110,7 @@ SimulationListEntryViewModel = function (simulationRecordId,viewList) {
 	this.payloadSize = koTools.getObservable(this.record, 'payloadSize');
 	this.payload = koTools.getObservable(this.record, 'payload');
 	this.noNodes = koTools.getObservable(this.record, 'noNodes');
-	this.noDevices = koTools.getObservable(this.record, 'noDevices');
+	this.noSimulators = koTools.getObservable(this.record, 'noSimulators');
 	this.frequency = koTools.getObservable(this.record, 'frequency');
 	this.isActive = ko.observable(false);
 };
@@ -135,7 +136,7 @@ SimulationViewModel = function () {
 	this.startTimeStamp = koTools.getObservable(this.record, 'startTimeStamp');
 	this.endTimeStamp = koTools.getObservable(this.record, 'endTimeStamp');
 	this.noNodes = koTools.getObservable(this.record, 'noNodes');
-	this.noDevices = koTools.getObservable(this.record, 'noDevices');
+	this.noSimulators = koTools.getObservable(this.record, 'noSimulators');
 	this.noMessages = koTools.getObservable(this.record, 'noMessages');
 	this.payLoadSize = koTools.getObservable(this.record, 'payLoadSize');
 	this.payLoad = koTools.getObservable(this.record, 'payLoad');
@@ -147,4 +148,12 @@ UserViewModel = function () {
 	this.firstname = koTools.getObservable(this.record, 'firstname');
 	this.lastname = koTools.getObservable(this.record, 'lastname');
 	this.role = koTools.getObservable(this.record, 'role');
+};
+
+NodeViewModel = function () {
+	this.record = ds.record.getAnonymousRecord();
+	this.id = koTools.getObservable(this.record, 'id');
+	this.memUsed = koTools.getObservable(this.record, 'memUsed');
+	this.memLeft = koTools.getObservable(this.record, 'memLeft');
+	this.noSimulators = koTools.getObservable(this.record, 'noSimulators');
 };

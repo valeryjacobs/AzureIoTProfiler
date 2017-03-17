@@ -80,7 +80,7 @@
   	<ul class="users" data-bind="foreach: simulations.entries">
 				<li data-bind="css:{ active: isActive }, click: $parent.selectSimulation.bind($parent)">
 					<em>
-						<span data-bind="text:noDevices"></span>
+						<span data-bind="text:noSimulators"></span>
 						<span data-bind="text:noNodes"></span>
 					</em>
 					<span data-bind="text:simulationId"></span>
@@ -113,6 +113,8 @@
     $("#start").click(function () {
       ds.rpc.make('start-test', { frequency: $("#frequency").val(), messageSize: 2000 }, (err, result) => {
         // result == 20;
+
+      ds.event.emit('simulation/control/start',{ frequency: $("#frequency").val(), messageSize: 2000 });
       });
     })
 

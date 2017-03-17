@@ -18,8 +18,14 @@ record.subscribe('firstname', function (value) {
 })
 
 dsClient.rpc.provide('start-test', (data, response) => {
-  //response.send( data.frequency + data.messageSize );
   response.send('Test with interval ' + data.frequency + ' initiated.');
+});
+
+dsClient.event.subscribe('simulation/control/start', startSimulation);
+
+function startSimulation(data) {
+  console.log('Starting simulation with a ' + data.frequency + 'second interval');
+
   clearInterval(refreshIntervalId);
 
   refreshIntervalId = setInterval(function () {
@@ -29,9 +35,7 @@ dsClient.rpc.provide('start-test', (data, response) => {
     console.log("Sending message: " + message.getData());
     client.sendEvent(message, printResultFor('send'));
   }, data.frequency * 1000);
-
-
-});
+}
 
 dsClient.rpc.provide('stop-test', (data, response) => {
   clearInterval(refreshIntervalId);
