@@ -1,91 +1,84 @@
 'use strict';
 
 var clientFromConnectionString = require('azure-iot-device-mqtt').clientFromConnectionString;
+var colors = require('colors');
 var Message = require('azure-iot-device').Message;
 
 //var connectionString = 'HostName=vjiotjourney.azure-devices.net;DeviceId=DeviceA;SharedAccessKey=EG7iQbrMpmqZ2UUmO1cTWed/X02pRSPywJsjX+/6esg=';
 
 var client;
+var refreshIntervalId;
+var simulator;
 const deepstream = require('deepstream.io-client-js')
-//const dsClient = deepstream('ws://vjiotprofiler.westeurope.cloudapp.azure.com:6020').login()
 const dsClient = deepstream('ws://localhost:6020').login()
 
-
+console.log('Connected to control hub.');
 
 const simulatorId = dsClient.getUid();
-console.log(simulatorId);
+console.log('Identified as simulator ' + simulatorId.yellow);
 
 dsClient.record.getRecord(simulatorId).set({
   runtime: 'console',
   status: 'waiting',
   simulatorId: simulatorId,
   frequency: 10,
-  payload: '{windSpeed: 0, temperature: 0}',
+  payload: '{"windSpeed": 0, "temperature": 0}',
   connectionString: '',
 });
 
 const list = dsClient.record.getList('simulators');
 list.addEntry(simulatorId);
 
-var record = dsClient.record.getRecord('some-name');
-var refreshIntervalId;
-
-record.subscribe('firstname', function (value) {
-  console.log(value);
-})
-
-dsClient.rpc.provide('start-test', (data, response) => {
-  console.log('start test');
-  response.send('Test with interval ' + data.frequency + ' initiated.');
-});
-
 dsClient.rpc.provide(simulatorId, (data, response) => {
 
-  console.log('receiving rpc');
+  simulator = dsClient.record.getRecord(simulatorId);
 
+  if (data.action == 'test') {
+    test();
+  }
+  else if (data.action == 'start') {
+    startSimulation();
+  }
+  else if (data.action == 'stop') {
+    clearInterval(refreshIntervalId);
+    console.log('Stopped simulation.'.red)
+  }
+  else if (data.action == 'delete') {
+    process.exit();
+  }
+});
 
-  var simulator = dsClient.record.getRecord(simulatorId);
+function test() {
+
   if (simulator.get('connectionString').length > 0) {
+    console.log('Testing simulator message send...')
     client = clientFromConnectionString(simulator.get('connectionString'));
     client.open(connectCallback);
 
-    var payload = JSON.stringify(simulator.get('payload'));
-    var message = new Message(payload);
-    console.log("Sending message: " + message.getData());
+    var message = new Message(simulator.get('payload'));
+
     client.sendEvent(message, printResultFor('send'));
-    console.log('Test with interval ' + data.frequency + ' and payload size ' + data.payloadSize + 'initiated.');
+    console.log('Sent message: '.cyan + message.getData().cyan);
   }
+}
 
-
-  //response.send('Test with interval ' + data.frequency + ' and payload size ' + data.payloadSize + 'initiated.');
-});
-
-// dsClient.rpc.provide(simulatorId,
-//       function (data, response) {
-//         console.log(data.frequency + ":" + data.payloadSize);
-//         response.send('ok');
-//       });
-
-
-dsClient.event.subscribe('simulation/control/start', startSimulation);
-
-function startSimulation(data) {
-  console.log('Starting simulation with a ' + data.frequency + 'second interval');
+function startSimulation() {
+  console.log('Starting simulation with a '.green + simulator.get('frequency') + ' second interval'.green);
 
   clearInterval(refreshIntervalId);
 
   refreshIntervalId = setInterval(function () {
     var windSpeed = 10 + (Math.random() * 4);
-    var data = JSON.stringify({ deviceId: 'Device00000001', windSpeed: windSpeed });
-    var message = new Message(data);
-    console.log("Sending message: " + message.getData());
-    client.sendEvent(message, printResultFor('send'));
-  }, data.frequency * 1000);
-}
+    var payload = JSON.parse(simulator.get('payload'));
 
-dsClient.rpc.provide('stop-test', (data, response) => {
-  clearInterval(refreshIntervalId);
-});
+    payload.windSpeed = windSpeed;
+
+    var message = new Message(JSON.stringify(payload));
+    console.log("Sending message: ".cyan + message.getData().cyan);
+    client.sendEvent(message, printResultFor('send'));
+
+  }, simulator.get('frequency') * 1000);
+}
 
 function printResultFor(op) {
   return function printResult(err, res) {
@@ -98,15 +91,6 @@ var connectCallback = function (err) {
   if (err) {
     console.log('Could not connect: ' + err);
   } else {
-
-
-
     console.log('Simulator connected. Awaiting instructions...');
-
-
   }
 };
-
-
-
-

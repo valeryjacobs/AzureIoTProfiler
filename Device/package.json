@@ -9,6 +9,7 @@
   "license": "ISC",
   "dependencies": {
     "azure-iot-device-mqtt": "^1.1.6",
+    "colors": "^1.1.2",
     "deepstream.io-client-js": "^2.1.1"
   },
   "devDependencies": {},

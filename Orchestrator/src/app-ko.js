@@ -1,19 +1,8 @@
 ds = deepstream('ws://localhost:6020');
 koTools = new KoTools(ko);
 
-var record = ds.record.getRecord('some-name')
-
 ds.login({ username: 'simulator-instance-' + ds.getUid() }, function () {
 	ko.applyBindings(new AppViewModel());
-});
-
-record.subscribe('firstname', function (value) {
-	$("#state").val(value);
-})
-
-$('#state').bind('input propertychange', function () {
-	record.set('firstname', $('#state').val())
-	ds.event.emit('device/connect', 'I am connected')
 });
 
 function setupChart() {
@@ -69,17 +58,13 @@ AppViewModel.prototype.addSimulation = function () {
 };
 
 AppViewModel.prototype.startSimulator = function () {
-
 	const list = ds.record.getList('simulators');
-
 	var entries = list.getEntries();
 
 	if (entries.length > 0) {
 		ds.rpc.make(list.getEntries()[entries.length - 1], { frequency: 4, payloadSize: 10 }, (error, result) => {
 			// error = null, result = 11
 		});
-
-
 	}
 };
 
@@ -164,10 +149,40 @@ SimulationListEntryViewModel.prototype.deleteSimulation = function (viewModel, e
 	this.record.delete();
 };
 
+SimulatorListEntryViewModel.prototype.testSimulator = function (viewModel, event) {
+	event.stopPropagation();
+	console.log('Test: ' + this.record.name);
+
+	ds.rpc.make(this.record.name, { action: 'test' }, (error, result) => { });
+};
+
+SimulatorListEntryViewModel.prototype.startSimulator = function (viewModel, event) {
+	event.stopPropagation();
+	console.log('Start: ' + this.record.name);
+	ds.rpc.make(this.record.name, { action: 'start' }, (error, result) => { });
+};
+
+SimulatorListEntryViewModel.prototype.stopSimulator = function (viewModel, event) {
+	event.stopPropagation();
+	console.log('Stop: ' + this.record.name);
+	ds.rpc.make(this.record.name, { action: 'stop' }, (error, result) => { });
+};
+
 SimulatorListEntryViewModel.prototype.deleteSimulator = function (viewModel, event) {
 	event.stopPropagation();
+	console.log('Delete: ' + this.record.name);
 	this.viewList.getList().removeEntry(this.record.name);
 	this.record.delete();
+
+	ds.rpc.make(this.record.name, { action: 'delete' }, (error, result) => {
+		if (result) {
+			console.log('Delete finalized.'.red);
+
+		}
+		if (error) {
+			console.log('Delete failed: ' + error);
+		}
+	});
 };
 
 /**
