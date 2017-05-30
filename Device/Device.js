@@ -92,5 +92,45 @@ var connectCallback = function (err) {
     console.log('Could not connect: ' + err);
   } else {
     console.log('Simulator connected. Awaiting instructions...');
+    client.onDeviceMethod('reboot', onReboot);
   }
+};
+
+
+var onReboot = function (request, response) {
+
+  // Respond the cloud app for the direct method
+  response.send(200, 'Reboot started', function (err) {
+    if (!err) {
+      console.error('An error occured when sending a method response:\n' + err.toString());
+    } else {
+      console.log('Response to method \'' + request.methodName + '\' sent successfully.');
+    }
+  });
+
+  // Report the reboot before the physical restart
+  var date = new Date();
+  var patch = {
+    iothubDM: {
+      reboot: {
+        lastReboot: date.toISOString(),
+      }
+    }
+  };
+
+  // Get device Twin
+  client.getTwin(function (err, twin) {
+    if (err) {
+      console.error('could not get twin'.red);
+    } else {
+      console.log('twin acquired');
+      twin.properties.reported.update(patch, function (err) {
+        if (err) throw err;
+        console.log('Device reboot twin state reported'.yellow)
+      });
+    }
+  });
+
+  // Add your device's reboot API for physical restart.
+  console.log('Rebooting!'.red);
 };

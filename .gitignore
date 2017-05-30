@@ -1,3 +1,7 @@
+#Secrets
+secrets.js
+secretAppSettings.config
+
 # Logs
 logs
 *.log
