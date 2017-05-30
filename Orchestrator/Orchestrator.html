@@ -28,7 +28,7 @@
     })
 
     button.onclick = (function () {
-      client.rpc.make('start-test', { frequency: $("#frequency").val(), messageSize: 2000 }, (err, result) => {
+      client.rpc.make('simulation/control/start', { frequency: $("#frequency").val(), messageSize: 2000 }, (err, result) => {
         // result == 20;
       });
     })

@@ -10,22 +10,35 @@ const deepstream = require('deepstream.io-client-js')
 //const dsClient = deepstream('ws://vjiotprofiler.westeurope.cloudapp.azure.com:6020').login()
 const dsClient = deepstream('ws://localhost:6020').login()
 
+dsClient.login({ username: 'genericclient', password: '12_qwasZX!@#' }, (success, data) => {
+  if (success) {
 
+    dsClient.record.getRecord(simulatorId).set({
+      runtime: 'console',
+      status: 'waiting',
+      simulatorId: simulatorId,
+      frequency: 10,
+      payload: '{windSpeed: 0, temperature: 0}',
+      connectionString: '',
+    });
+
+    const list = dsClient.record.getList('simulators');
+    list.addEntry(simulatorId);
+
+  } else {
+    // extra data can be optionaly sent from deepstream for
+    // both successful and unsuccesful logins
+    console.log(data);
+
+    // client.getConnectionState() will now return
+    // 'AWAITING_AUTHENTICATION' or 'CLOSED'
+    // if the maximum number of authentication
+    // attempts has been exceeded.
+  }
+})
 
 const simulatorId = dsClient.getUid();
 console.log(simulatorId);
-
-dsClient.record.getRecord(simulatorId).set({
-  runtime: 'console',
-  status: 'waiting',
-  simulatorId: simulatorId,
-  frequency: 10,
-  payload: '{windSpeed: 0, temperature: 0}',
-  connectionString: '',
-});
-
-const list = dsClient.record.getList('simulators');
-list.addEntry(simulatorId);
 
 var record = dsClient.record.getRecord('some-name');
 var refreshIntervalId;
@@ -41,22 +54,16 @@ dsClient.rpc.provide('start-test', (data, response) => {
 
 dsClient.rpc.provide(simulatorId, (data, response) => {
 
-  console.log('receiving rpc');
-
-
   var simulator = dsClient.record.getRecord(simulatorId);
-  if (simulator.get('connectionString').length > 0) {
-    client = clientFromConnectionString(simulator.get('connectionString'));
-    client.open(connectCallback);
+  client = clientFromConnectionString(simulator.get('connectionString'));
+  client.open(connectCallback);
 
-    var payload = JSON.stringify(simulator.get('payload'));
-    var message = new Message(payload);
-    console.log("Sending message: " + message.getData());
-    client.sendEvent(message, printResultFor('send'));
-    console.log('Test with interval ' + data.frequency + ' and payload size ' + data.payloadSize + 'initiated.');
-  }
+  var data = JSON.stringify(simulator.get('payload'));
+  var message = new Message(data);
+  console.log("Sending message: " + message.getData());
+  client.sendEvent(message, printResultFor('send'));
 
-
+  console.log('Test with interval ' + data.frequency + ' and payload size ' + data.payloadSize + 'initiated.');
   //response.send('Test with interval ' + data.frequency + ' and payload size ' + data.payloadSize + 'initiated.');
 });
 

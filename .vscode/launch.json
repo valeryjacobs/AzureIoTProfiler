@@ -8,7 +8,7 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            "program": "${workspaceRoot}\\DeviceRegistry.js",
+            "program": "${workspaceRoot}\\Device\\Device.js",
             "cwd": "${workspaceRoot}"
         },
         {

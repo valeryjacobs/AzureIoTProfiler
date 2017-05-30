@@ -283,6 +283,50 @@
                         <hr/>
                     </div>
                 </div>
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Runtime</th>
+                                        <th>Status</th>
+                                        <th>Frequency</th>
+                                        <th>Payload</th>
+                                        <th>Connection string</th>
+                                    </tr>
+                                </thead>
+                                <tbody data-bind="foreach: simulators.entries">
+
+                                    <tr data-bind="css:{ active: isActive }, click: $parent.selectSimulator.bind($parent)">
+                                        <td data-bind="text:simulatorId" />
+                                        <td data-bind="text:runtime" />
+                                        <td data-bind="text:status" />
+                                        <td>
+                                            <input data-bind="textInput: frequency" type="text" />
+                                        </td>
+                                        <td>
+                                            <input data-bind="textInput: payload" type="text" />
+                                        </td>
+                                        <td>
+                                            <input data-bind="textInput: connectionString" type="text" />
+                                        </td>
+
+                                        <td>
+                                            <button data-bind="click: deleteSimulator" class="btn btn-default">Delete</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <button data-bind="click: startSimulator" type="submit" class="btn btn-default">Start simulating</button>
+                        <hr/>
+                    </div>
+                </div>
+
+
                 <div class="row">
                     <div class="col-lg-8">
                         <div class="panel panel-default">
@@ -522,30 +566,30 @@
     <script src="js/sb-admin-2.js"></script>
 
     <script type="text/javascript">
-                                        $("#start").click(function () {
-                                            ds.rpc.make('start-test', { frequency: $("#frequency").val(), messageSize: 2000 }, (err, result) => { });
-                                        })
+        $("#start").click(function () {
+            ds.rpc.make('start-test', { frequency: $("#frequency").val(), messageSize: 2000 }, (err, result) => { });
+        })
 
-                                        $("#stop").click(function () {
-                                            ds.rpc.make('stop-test', {}, (err, result) => { });
-                                        })
+        $("#stop").click(function () {
+            ds.rpc.make('stop-test', {}, (err, result) => { });
+        })
 
 
 
-                                        function selectMainDiv(mainDiv) {
-                                            //alert($("[id^='mainDiv']" ).length);
-                                            $("[id^='mainDiv']").each(function () {
+        function selectMainDiv(mainDiv) {
+            //alert($("[id^='mainDiv']" ).length);
+            $("[id^='mainDiv']").each(function () {
 
-                                                if (this.id != mainDiv) {
-                                                    $(this).hide();
-                                                }
-                                            })
+                if (this.id != mainDiv) {
+                    $(this).hide();
+                }
+            })
 
-                                            $("#" + mainDiv).show();
+            $("#" + mainDiv).show();
 
-                                        }
+        }
 
-                                        selectMainDiv("mainDivDashboard");
+        selectMainDiv("mainDivDashboard");
     </script>
 
 </body>
