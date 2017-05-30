@@ -185,6 +185,22 @@ SimulatorListEntryViewModel.prototype.deleteSimulator = function (viewModel, eve
 	});
 };
 
+SimulatorListEntryViewModel.prototype.rebootSimulator = function (viewModel, event) {
+	event.stopPropagation();
+	console.log('Reboot: ' + this.record.name);
+	
+
+	ds.rpc.make('devicemanager', { action: 'reboot', deviceId: 'DeviceA'  }, (error, result) => {
+		if (result) {
+			console.log('Delete finalized.'.red);
+
+		}
+		if (error) {
+			console.log('Delete failed: ' + error);
+		}
+	});
+};
+
 /**
  * Class UserViewModel
  */

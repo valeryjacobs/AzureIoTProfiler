@@ -299,6 +299,7 @@
                                         <th>Start</th>
                                         <th>Stop</th>
                                         <th>Delete</th>
+                                         <th>Reboot</th>
                                         <th>Runtime</th>
                                         <th>Status</th>
                                     </tr>
@@ -327,6 +328,9 @@
                                         </td>
                                         <td>
                                             <button data-bind="click: deleteSimulator" class="btn btn-danger">Delete</button>
+                                        </td>
+                                         <td>
+                                            <button data-bind="click: rebootSimulator" class="btn btn-danger">Reboot</button>
                                         </td>
                                         <td data-bind="text:runtime" />
                                         <td data-bind="text:status" />
