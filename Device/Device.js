@@ -2,9 +2,11 @@
 
 var clientFromConnectionString = require('azure-iot-device-mqtt').clientFromConnectionString;
 var colors = require('colors');
+var figlet = require('figlet');
+var si = require('systeminformation');
 var Message = require('azure-iot-device').Message;
 
-//var connectionString = 'HostName=vjiotjourney.azure-devices.net;DeviceId=DeviceA;SharedAccessKey=EG7iQbrMpmqZ2UUmO1cTWed/X02pRSPywJsjX+/6esg=';
+var measurementValue = 0;
 
 var client;
 var refreshIntervalId;
@@ -12,17 +14,24 @@ var simulator;
 const deepstream = require('deepstream.io-client-js')
 const dsClient = deepstream('ws://localhost:6020').login()
 
-console.log('Connected to control hub.');
-
 const simulatorId = dsClient.getUid();
-console.log('Identified as simulator ' + simulatorId.yellow);
+
+figlet('Device Simulator', function (err, data) {
+  console.log(data);
+  console.log('Identified as simulator ' + simulatorId.yellow);
+});
+
+si.currentLoad()
+  .then(data => measurementValue = data.currentload)
+  .catch(error => console.error(error));
+
 
 dsClient.record.getRecord(simulatorId).set({
   runtime: 'console',
   status: 'waiting',
   simulatorId: simulatorId,
   frequency: 10,
-  payload: '{"windSpeed": 0, "temperature": 0}',
+  payload: '{"sensorA": 0, "sensorB": 0}',
   connectionString: '',
 });
 
@@ -68,10 +77,10 @@ function startSimulation() {
   clearInterval(refreshIntervalId);
 
   refreshIntervalId = setInterval(function () {
-    var windSpeed = 10 + (Math.random() * 4);
+
     var payload = JSON.parse(simulator.get('payload'));
 
-    payload.windSpeed = windSpeed;
+    payload.sensorA = measurementValue;
 
     var message = new Message(JSON.stringify(payload));
     console.log("Sending message: ".cyan + message.getData().cyan);

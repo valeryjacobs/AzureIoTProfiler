@@ -10,6 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "azure-iothub": "^1.1.11",
-     "deepstream.io-client-js": "^2.1.1"
+    "colors": "^1.1.2",
+    "deepstream.io-client-js": "^2.1.1",
+    "figlet": "^1.2.0"
   }
 }

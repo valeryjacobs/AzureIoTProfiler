@@ -292,14 +292,15 @@
                                 <thead>
                                     <tr>
                                         <th>ID</th>
-                                        <th>Frequency</th>
-                                        <th>Payload</th>
-                                        <th>Connection string</th>
+                                       <th>Provision</th>
                                         <th>Test</th>
                                         <th>Start</th>
                                         <th>Stop</th>
                                         <th>Delete</th>
                                          <th>Reboot</th>
+                                          <th>Frequency</th>
+                                        <th>Payload</th>
+                                        <th>Connection string</th>
                                         <th>Runtime</th>
                                         <th>Status</th>
                                     </tr>
@@ -308,14 +309,9 @@
 
                                     <tr data-bind="css:{ active: isActive }, click: $parent.selectSimulator.bind($parent)">
                                         <td data-bind="text:simulatorId" />
-                                        <td >
-                                            <input style="width:40px" data-bind="textInput: frequency" type="text" />
-                                        </td>
+                                    
                                         <td>
-                                            <input data-bind="textInput: payload" type="text" />
-                                        </td>
-                                        <td>
-                                            <input data-bind="textInput: connectionString" type="text" />
+                                            <button data-bind="click: provisionDevice" class="btn btn-primary">Provision</button>
                                         </td>
                                         <td>
                                             <button data-bind="click: testSimulator" class="btn btn-primary">Test</button>
@@ -331,6 +327,15 @@
                                         </td>
                                          <td>
                                             <button data-bind="click: rebootSimulator" class="btn btn-danger">Reboot</button>
+                                        </td>
+                                           <td >
+                                            <input style="width:40px" data-bind="textInput: frequency" type="text" />
+                                        </td>
+                                        <td>
+                                            <input data-bind="textInput: payload" type="text" />
+                                        </td>
+                                        <td>
+                                            <input data-bind="textInput: connectionString" type="text" />
                                         </td>
                                         <td data-bind="text:runtime" />
                                         <td data-bind="text:status" />

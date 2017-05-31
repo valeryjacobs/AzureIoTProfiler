@@ -2,17 +2,45 @@
 
 var Registry = require('azure-iothub').Registry;
 var Client = require('azure-iothub').Client;
+var iotHub = require('azure-iothub');
 var secrets = require('./secrets.js');
+var figlet = require('figlet');
+var colors = require('colors');
 
 const deepstream = require('deepstream.io-client-js')
 const dsClient = deepstream('ws://localhost:6020').login()
 
+figlet('Device Manager', function (err, data) { console.log(data); console.log('Running...') });
 
-console.log(secrets.iotHubConnectionString);
+
 var connectionString = secrets.iotHubConnectionString;
 var registry = Registry.fromConnectionString(connectionString);
 var client = Client.fromConnectionString(connectionString);
 
+var provisionDevice = function (deviceId) {
+    var device = new iotHub.Device(null);
+    device.deviceId = deviceId;
+
+    registry.create(device, function (err, deviceInfo, res) {
+        if (err) {
+            registry.get(device.deviceId, printDeviceInfo);
+        }
+        if (deviceInfo) {
+            console.log('Device created.');
+            var simulator = dsClient.record.getRecord(device.deviceId);
+            simulator.set({ connectionString: deviceInfo.connectionString, deviceTwin: deviceInfo.twin});
+
+            printDeviceInfo(err, deviceInfo, res);
+        }
+    });
+}
+
+function printDeviceInfo(err, deviceInfo, res) {
+    if (deviceInfo) {
+        console.log('Device ID: ' + deviceInfo.deviceId);
+        console.log('Device key: ' + deviceInfo.authentication.symmetricKey.primaryKey);
+    }
+}
 
 var startRebootDevice = function (deviceId) {
     console.log(deviceId)
@@ -28,7 +56,8 @@ var startRebootDevice = function (deviceId) {
         if (err) {
             console.error("Direct method error: " + err.message);
         } else {
-            console.log("Successfully invoked the device to reboot.");
+            console.log(result);
+            //console.log("Successfully invoked the device to reboot.");
         }
     });
 };
@@ -50,13 +79,19 @@ var queryTwinLastReboot = function () {
 };
 
 dsClient.rpc.provide('devicemanager', (data, response) => {
+    console.log('device manager :' + data.deviceId);
 
-    //simulator = dsClient.record.getRecord(data.simulatorId);
-    console.log('device manager :' + data.action);
-    if (data.action == 'reboot') {
-        startRebootDevice('DeviceA');
+    switch (data.action) {
+        case 'reboot':
+            startRebootDevice(data.deviceId);
+            break;
+        case 'provision':
+            provisionDevice(data.deviceId);
+            break;
     }
 });
+
+
 
 
 //setInterval(queryTwinLastReboot, 2000);

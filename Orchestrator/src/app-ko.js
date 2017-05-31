@@ -190,13 +190,28 @@ SimulatorListEntryViewModel.prototype.rebootSimulator = function (viewModel, eve
 	console.log('Reboot: ' + this.record.name);
 	
 
-	ds.rpc.make('devicemanager', { action: 'reboot', deviceId: 'DeviceA'  }, (error, result) => {
+	ds.rpc.make('devicemanager', { action: 'reboot', deviceId: this.record.name}, (error, result) => {
 		if (result) {
 			console.log('Delete finalized.'.red);
 
 		}
 		if (error) {
 			console.log('Delete failed: ' + error);
+		}
+	});
+};
+
+SimulatorListEntryViewModel.prototype.provisionDevice = function (viewModel, event) {
+	event.stopPropagation();
+	console.log('Provision: ' + this.record.name);
+	
+	ds.rpc.make('devicemanager', { action: 'provision', deviceId: this.record.name }, (error, result) => {
+		if (result) {
+			console.log('Provisioning finalized.'.red);
+
+		}
+		if (error) {
+			console.log('Provisioning failed: ' + error);
 		}
 	});
 };
