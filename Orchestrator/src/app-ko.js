@@ -1,4 +1,6 @@
-ds = deepstream('ws://localhost:6020');
+ds = deepstream('ws://52.166.139.1:6020');
+//ds = deepstream('wss://154.deepstreamhub.com?apiKey=b63570d7-d7a3-40a0-adb8-51d810024e3a');
+
 koTools = new KoTools(ko);
 
 ds.login({ username: 'simulator-instance-' + ds.getUid() }, function () {
@@ -68,6 +70,8 @@ AppViewModel.prototype.startSimulator = function () {
 	}
 };
 
+
+
 AppViewModel.prototype.addUser = function () {
 	var name = 'users/' + ds.getUid(),
 		record = ds.record.getRecord(name);
@@ -132,7 +136,9 @@ SimulatorListEntryViewModel = function (simulatorRecordId, viewList) {
 	this.status = koTools.getObservable(this.record, 'status');
 	this.frequency = koTools.getObservable(this.record, 'frequency');
 	this.payload = koTools.getObservable(this.record, 'payload');
-	this.connectionString = koTools.getObservable(this.record, 'connectionString');
+	this.primaryKey = koTools.getObservable(this.record, 'primaryKey');
+	this.iotHubNamespace = koTools.getObservable(this.record, 'iotHubNamespace');
+	this.deviceTwin = koTools.getObservable(this.record, 'deviceTwin');
 
 	this.isActive = ko.observable(false);
 };
@@ -162,6 +168,12 @@ SimulatorListEntryViewModel.prototype.startSimulator = function (viewModel, even
 	ds.rpc.make(this.record.name, { action: 'start' }, (error, result) => { });
 };
 
+SimulatorListEntryViewModel.prototype.updateTwin = function (viewModel, event) {
+	event.stopPropagation();
+	console.log('Update twin: ' + this.record.name);
+	ds.rpc.make('devicemanager', { action: 'updateTwin', deviceId: this.record.name, deviceTwin: this.record.get('deviceTwin') }, (error, result) => { });
+};
+
 SimulatorListEntryViewModel.prototype.stopSimulator = function (viewModel, event) {
 	event.stopPropagation();
 	console.log('Stop: ' + this.record.name);
@@ -188,9 +200,9 @@ SimulatorListEntryViewModel.prototype.deleteSimulator = function (viewModel, eve
 SimulatorListEntryViewModel.prototype.rebootSimulator = function (viewModel, event) {
 	event.stopPropagation();
 	console.log('Reboot: ' + this.record.name);
-	
 
-	ds.rpc.make('devicemanager', { action: 'reboot', deviceId: this.record.name}, (error, result) => {
+
+	ds.rpc.make('devicemanager', { action: 'reboot', deviceId: this.record.name }, (error, result) => {
 		if (result) {
 			console.log('Delete finalized.'.red);
 
@@ -204,7 +216,7 @@ SimulatorListEntryViewModel.prototype.rebootSimulator = function (viewModel, eve
 SimulatorListEntryViewModel.prototype.provisionDevice = function (viewModel, event) {
 	event.stopPropagation();
 	console.log('Provision: ' + this.record.name);
-	
+
 	ds.rpc.make('devicemanager', { action: 'provision', deviceId: this.record.name }, (error, result) => {
 		if (result) {
 			console.log('Provisioning finalized.'.red);
@@ -238,9 +250,10 @@ SimulatorViewModel = function () {
 	this.type = koTools.getObservable(this.record, 'type');
 	this.status = koTools.getObservable(this.record, 'status');
 	this.frequency = koTools.getObservable(this.record, 'frequency');
-	this.connectionString = koTools.getObservable(this.record, 'connectionString');
+	this.primaryKey = koTools.getObservable(this.record, 'primaryKey');
+	this.iotHubNamespace = koTools.getObservable(this.record, 'iotHubNamespace');
 	this.payload = koTools.getObservable(this.record, 'payload');
-
+	this.deviceTwin = koTools.getObservable(this.record, 'deviceTwin');
 };
 
 UserViewModel = function () {

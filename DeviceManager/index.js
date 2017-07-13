@@ -8,10 +8,11 @@ var figlet = require('figlet');
 var colors = require('colors');
 
 const deepstream = require('deepstream.io-client-js')
-const dsClient = deepstream('ws://localhost:6020').login()
+const dsClient = deepstream('ws://52.166.139.1:6020').login()
+//const dsClient = deepstream('wss://154.deepstreamhub.com?apiKey=b63570d7-d7a3-40a0-adb8-51d810024e3a').login()
+
 
 figlet('Device Manager', function (err, data) { console.log(data); console.log('Running...') });
-
 
 var connectionString = secrets.iotHubConnectionString;
 var registry = Registry.fromConnectionString(connectionString);
@@ -20,19 +21,57 @@ var client = Client.fromConnectionString(connectionString);
 var provisionDevice = function (deviceId) {
     var device = new iotHub.Device(null);
     device.deviceId = deviceId;
+    console.log('im here');
 
     registry.create(device, function (err, deviceInfo, res) {
+
         if (err) {
+            console.log('err' + err);
             registry.get(device.deviceId, printDeviceInfo);
         }
         if (deviceInfo) {
-            console.log('Device created.');
+            console.log('Device created.' + deviceInfo.authentication.symmetricKey.primaryKey);
             var simulator = dsClient.record.getRecord(device.deviceId);
-            simulator.set({ connectionString: deviceInfo.connectionString, deviceTwin: deviceInfo.twin});
+            simulator.set('iotHubNamespace', secrets.iotHubNamespace);
+            simulator.set('primaryKey', deviceInfo.authentication.symmetricKey.primaryKey);
 
-            printDeviceInfo(err, deviceInfo, res);
+            registry.getTwin(device.deviceId, function (err, twin) {
+                if (err) {
+                    console.error(err.message);
+                } else {
+                    console.log(JSON.stringify(twin, null, 2));
+
+                    simulator.set('deviceTwin', JSON.stringify(twin, null, 2));
+
+                    var twinPatch = {
+                        tags: {
+                            city: "Amsterdam",
+                            building: "A1",
+                            floor: "1"
+                        },
+                        properties: {
+                            desired: {
+                                telemetryInterval: 1
+                            }
+                        }
+                    };
+
+                    twin.update(twinPatch, function (err, twin) {
+                        if (err) {
+                            console.error(err.message);
+                        } else {
+                        }
+                    });
+
+
+                    printDeviceInfo(err, deviceInfo, res);
+                }
+            });
+
+
+
         }
-    });
+    })
 }
 
 function printDeviceInfo(err, deviceInfo, res) {
@@ -41,6 +80,13 @@ function printDeviceInfo(err, deviceInfo, res) {
         console.log('Device key: ' + deviceInfo.authentication.symmetricKey.primaryKey);
     }
 }
+
+var updateDeviceTwin = function (deviceId,deviceTwin) {
+    console.log('updating twin' + deviceId);
+    registry.getTwin(deviceId, function (err, twin) {
+         twin.update(deviceTwin, function (err, twin) { });
+    })
+};
 
 var startRebootDevice = function (deviceId) {
     console.log(deviceId)
@@ -63,7 +109,6 @@ var startRebootDevice = function (deviceId) {
 };
 
 var queryTwinLastReboot = function () {
-
     registry.getTwin(deviceToReboot, function (err, twin) {
 
         if (twin.properties.reported.iothubDM != null) {
@@ -80,7 +125,7 @@ var queryTwinLastReboot = function () {
 
 dsClient.rpc.provide('devicemanager', (data, response) => {
     console.log('device manager :' + data.deviceId);
-
+    console.log(data.action);
     switch (data.action) {
         case 'reboot':
             startRebootDevice(data.deviceId);
@@ -88,9 +133,12 @@ dsClient.rpc.provide('devicemanager', (data, response) => {
         case 'provision':
             provisionDevice(data.deviceId);
             break;
+        case 'updateTwin':
+            updateDeviceTwin(data.deviceId, data.deviceTwin);
+            break;
+
     }
 });
-
 
 
 

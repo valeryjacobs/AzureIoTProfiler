@@ -164,7 +164,7 @@
                                         <i class="fa fa-comments fa-5x"></i>
                                     </div>
                                     <div class="col-xs-9 text-right">
-                                        <div class="huge"><span data-bind="text:simulators.length"/></div>
+                                        <div class="huge"><span data-bind="text:simulators.length" /></div>
                                         <div>Simulators</div>
                                     </div>
                                 </div>
@@ -292,15 +292,18 @@
                                 <thead>
                                     <tr>
                                         <th>ID</th>
-                                       <th>Provision</th>
+                                        <th>Provision</th>
                                         <th>Test</th>
                                         <th>Start</th>
                                         <th>Stop</th>
                                         <th>Delete</th>
-                                         <th>Reboot</th>
-                                          <th>Frequency</th>
+                                        <th>Reboot</th>
+                                        <th>Update twin</th>
+                                        <th>Twin patch</th>
+                                        <th>Frequency</th>
                                         <th>Payload</th>
-                                        <th>Connection string</th>
+                                        <th>Primary key</th>
+                                        <th>IoT Hub</th>
                                         <th>Runtime</th>
                                         <th>Status</th>
                                     </tr>
@@ -309,7 +312,7 @@
 
                                     <tr data-bind="css:{ active: isActive }, click: $parent.selectSimulator.bind($parent)">
                                         <td data-bind="text:simulatorId" />
-                                    
+
                                         <td>
                                             <button data-bind="click: provisionDevice" class="btn btn-primary">Provision</button>
                                         </td>
@@ -325,17 +328,24 @@
                                         <td>
                                             <button data-bind="click: deleteSimulator" class="btn btn-danger">Delete</button>
                                         </td>
-                                         <td>
+                                        <td>
                                             <button data-bind="click: rebootSimulator" class="btn btn-danger">Reboot</button>
                                         </td>
-                                           <td >
+                                        <td>
+                                            <button data-bind="click: updateTwin" class="btn btn-danger">Update twin</button>
+                                        </td>
+                                        <td>
+                                            <input data-bind="textInput: deviceTwin" type="text" />
+                                        </td>
+                                        <td>
                                             <input style="width:40px" data-bind="textInput: frequency" type="text" />
                                         </td>
                                         <td>
                                             <input data-bind="textInput: payload" type="text" />
                                         </td>
-                                        <td>
-                                            <input data-bind="textInput: connectionString" type="text" />
+                                        <td data-bind="text:primaryKey">
+                                        </td>
+                                        <td data-bind="text:iotHubNamespace">
                                         </td>
                                         <td data-bind="text:runtime" />
                                         <td data-bind="text:status" />

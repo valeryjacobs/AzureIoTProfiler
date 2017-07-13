@@ -12,7 +12,9 @@ var client;
 var refreshIntervalId;
 var simulator;
 const deepstream = require('deepstream.io-client-js')
-const dsClient = deepstream('ws://localhost:6020').login()
+const dsClient = deepstream('ws://52.166.139.1:6020').login()
+//const dsClient = deepstream('wss://154.deepstreamhub.com?apiKey=b63570d7-d7a3-40a0-adb8-51d810024e3a').login()
+
 
 const simulatorId = dsClient.getUid();
 
@@ -21,9 +23,15 @@ figlet('Device Simulator', function (err, data) {
   console.log('Identified as simulator ' + simulatorId.yellow);
 });
 
-si.currentLoad()
-  .then(data => measurementValue = data.currentload)
-  .catch(error => console.error(error));
+
+
+setInterval(function () {
+
+  si.currentLoad()
+    .then(data => measurementValue = data.currentload)
+    .catch(error => console.error(error));
+
+}, 1000);
 
 
 dsClient.record.getRecord(simulatorId).set({
@@ -72,8 +80,15 @@ function test() {
 }
 
 function startSimulation() {
+
   console.log('Starting simulation with a '.green + simulator.get('frequency') + ' second interval'.green);
 
+  var connectionString = 'HostName=' + simulator.get('iotHubNamespace') + '.azure-devices.net;DeviceId=' + simulatorId + ';SharedAccessKey=' + simulator.get('primaryKey');
+  console.log('conn:' + connectionString);
+  client = clientFromConnectionString(connectionString);
+  //HostName=vjiotjourney.azure-devices.net;DeviceId=DeviceA;SharedAccessKey=EG7iQbrMpmqZ2UUmO1cTWed/X02pRSPywJsjX+/6esg=
+
+  client.open(connectCallback);
   clearInterval(refreshIntervalId);
 
   refreshIntervalId = setInterval(function () {
@@ -84,6 +99,7 @@ function startSimulation() {
 
     var message = new Message(JSON.stringify(payload));
     console.log("Sending message: ".cyan + message.getData().cyan);
+
     client.sendEvent(message, printResultFor('send'));
 
   }, simulator.get('frequency') * 1000);
