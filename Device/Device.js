@@ -12,7 +12,7 @@ var client;
 var refreshIntervalId;
 var simulator;
 const deepstream = require('deepstream.io-client-js')
-const dsClient = deepstream('ws://52.166.139.1:6020').login()
+const dsClient = deepstream('ws://40.118.108.105:6020').login()
 //const dsClient = deepstream('wss://154.deepstreamhub.com?apiKey=b63570d7-d7a3-40a0-adb8-51d810024e3a').login()
 
 

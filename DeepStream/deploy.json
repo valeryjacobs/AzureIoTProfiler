@@ -1,0 +1,88 @@
+{
+    "containers": [
+      {
+        "command": null,
+        "environmentVariables": [],
+        "image": "deepstreamio/deepstream.io",
+        "instanceView": {
+          "currentState": {
+            "detailStatus": "",
+            "exitCode": null,
+            "finishTime": null,
+            "startTime": "2017-08-22T08:42:29+00:00",
+            "state": "Running"
+          },
+          "events": [
+            {
+              "count": 1,
+              "firstTimestamp": "2017-08-22T08:42:14+00:00",
+              "lastTimestamp": "2017-08-22T08:42:14+00:00",
+              "message": "Pulling: pulling image \"deepstreamio/deepstream.io\"",
+              "type": "Normal"
+            },
+            {
+              "count": 1,
+              "firstTimestamp": "2017-08-22T08:42:29+00:00",
+              "lastTimestamp": "2017-08-22T08:42:29+00:00",
+              "message": "Pulled: Successfully pulled image \"deepstreamio/deepstream.io\"",
+              "type": "Normal"
+            },
+            {
+              "count": 1,
+              "firstTimestamp": "2017-08-22T08:42:29+00:00",
+              "lastTimestamp": "2017-08-22T08:42:29+00:00",
+              "message": "Created: Created container with id ad7716ded614de6129195cd111524b4bb61dfe383dd8d103d4dc69d672693b69",
+              "type": "Normal"
+            },
+            {
+              "count": 1,
+              "firstTimestamp": "2017-08-22T08:42:29+00:00",
+              "lastTimestamp": "2017-08-22T08:42:29+00:00",
+              "message": "Started: Started container with id ad7716ded614de6129195cd111524b4bb61dfe383dd8d103d4dc69d672693b69",
+              "type": "Normal"
+            }
+          ],
+          "previousState": null,
+          "restartCount": 0
+        },
+        "name": "deepstream",
+        "ports": [
+          {
+            "port": 80
+          },
+          {
+            "port": 8080
+          }
+        ],
+        "resources": {
+          "limits": null,
+          "requests": {
+            "cpu": 1.0,
+            "memoryInGb": 1.5
+          }
+        },
+        "volumeMounts": null
+      }
+    ],
+    "id": "/subscriptions/17918e96-fa57-426f-bac2-2ce6219fcc0d/resourceGroups/AzureSim/providers/Microsoft.ContainerInstance/containerGroups/deepstream",
+    "imageRegistryCredentials": null,
+    "ipAddress": {
+      "ip": "52.166.64.145",
+      "ports": [
+        {
+          "port": 80,
+          "protocol": "TCP"
+        }
+      ]
+    },
+    "location": "westeurope",
+    "name": "deepstream",
+    "osType": "Linux",
+    "provisioningState": "Succeeded",
+    "resourceGroup": "AzureSim",
+    "restartPolicy": null,
+    "state": "Running",
+    "tags": null,
+    "type": "Microsoft.ContainerInstance/containerGroups",
+    "volumes": null
+  }
